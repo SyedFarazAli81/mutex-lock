@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
+#include <process.h>
+
+bool lock = false;
+
+void increment(void*);
+void decrement(void*);
+
+int main()
+{
+    int n = 5;
+    HANDLE hIncrement = (HANDLE)_beginthread(increment, 0, (void*)&n);
+    HANDLE hDecrement = (HANDLE)_beginthread(decrement, 0, (void*)&n);
+    WaitForSingleObject(hIncrement, 1000 * 500);
+    WaitForSingleObject(hDecrement, 1000 * 500);
+    return 0;
+}
+
+void increment(void *p)
+{
+    int *n = p;
+    for(int i = 0; i < 10; i++)
+    {
+        while (lock)
+       {
+
+       }
+       lock = true;
+       (*n)++;
+       lock = false;
+    }
+}
+
+void decrement(void *p)
+{
+    int *n = p;
+    for(int i = 0; i < 10; i++)
+    {
+        while (lock)
+       {
+
+       }
+       lock = true;
+       (*n)--;
+       lock = false;
+    }
+   
+}

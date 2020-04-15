@@ -1,50 +1,33 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <windows.h>
-#include <process.h>
+#include<stdio.h>
 
-bool lock = false;
+	#include <pthread.h>
+	
+	int count = 0;
+	pthread_mutex_t mtx; //Global Mutex declaration
+	
+	void *countFun(void *args) //Function for counting numbers upto 100000
+	{
+		while (count < 100000)
+		{
+			pthread_mutex_lock(&mtx); //Locking the Critical Section using Mutex
+			count++; //Critical Section 
+			pthread_mutex_unlock(&mtx); //Unlocking the Critical Section using Mutex
+			printf("%d\t",count); //Printing Count
+		}
+	}
+	
+	int main()
+	{
+		int i;
+		pthread_t thrd[4]; //Declaration of 4 threads
+		for (i=0;i<4;i++)
+		{
+			pthread_create(&thrd[i],NULL,countFun,NULL); //Creation of 4 threads
+		}
+		for (i=0;i<4;i++)
+		{
+			pthread_exit(&thrd[i]); //Exiting each thread
+		}
+		return (0);
+	}
 
-void increment(void*);
-void decrement(void*);
-
-int main()
-{
-    int n = 5;
-    HANDLE hIncrement = (HANDLE)_beginthread(increment, 0, (void*)&n);
-    HANDLE hDecrement = (HANDLE)_beginthread(decrement, 0, (void*)&n);
-    WaitForSingleObject(hIncrement, 1000 * 500);
-    WaitForSingleObject(hDecrement, 1000 * 500);
-    return 0;
-}
-
-void increment(void *p)
-{
-    int *n = p;
-    for(int i = 0; i < 10; i++)
-    {
-        while (lock)
-       {
-
-       }
-       lock = true;
-       (*n)++;
-       lock = false;
-    }
-}
-
-void decrement(void *p)
-{
-    int *n = p;
-    for(int i = 0; i < 10; i++)
-    {
-        while (lock)
-       {
-
-       }
-       lock = true;
-       (*n)--;
-       lock = false;
-    }
-   
-}
